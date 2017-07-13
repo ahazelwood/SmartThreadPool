@@ -483,10 +483,10 @@ namespace Amib.Threading
 
             _isSuspended = _stpStartInfo.StartSuspended;
 
-#if (_WINDOWS_CE) || (_SILVERLIGHT) || (_MONO) || (WINDOWS_PHONE)
-			if (null != _stpStartInfo.PerformanceCounterInstanceName)
+#if (_WINDOWS_CE) || (_SILVERLIGHT) || (_MONO) || (WINDOWS_PHONE) || (NETSTANDARD2_0)
+            if (null != _stpStartInfo.PerformanceCounterInstanceName)
 			{
-                throw new NotSupportedException("Performance counters are not implemented for Compact Framework/Silverlight/Mono, instead use StpStartInfo.EnableLocalPerformanceCounters");
+                throw new NotSupportedException("Performance counters are not implemented for Compact Framework/Silverlight/Mono/Dotnet Standard, instead use StpStartInfo.EnableLocalPerformanceCounters");
             }
 #else
             if (null != _stpStartInfo.PerformanceCounterInstanceName)
@@ -1008,9 +1008,13 @@ namespace Amib.Threading
 			}
 
 			int millisecondsLeft = millisecondsTimeout;
+#if (NETSTANDARD2_0)
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+#else
             Stopwatch stopwatch = Stopwatch.StartNew();
+#endif
             //DateTime start = DateTime.UtcNow;
-			bool waitInfinitely = (Timeout.Infinite == millisecondsTimeout);
+            bool waitInfinitely = (Timeout.Infinite == millisecondsTimeout);
 			bool timeout = false;
 
 			// Each iteration we update the time left for the timeout.
@@ -1048,7 +1052,7 @@ namespace Amib.Threading
 					if ((thread != null)
 #if !(_WINDOWS_CE)
                         && thread.IsAlive
-#endif                        
+#endif
                         )
 					{
 						try 
@@ -1280,7 +1284,7 @@ namespace Amib.Threading
 			return workItemsGroup;
 		}
 
-        #region Fire Thread's Events
+#region Fire Thread's Events
 
         private void FireOnThreadInitialization()
         {
@@ -1322,7 +1326,7 @@ namespace Amib.Threading
             }
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// This event is fired when a thread is created.
@@ -1380,9 +1384,9 @@ namespace Amib.Threading
 	        }
 	    }
 
-		#endregion
+#endregion
 
-		#region Properties
+#region Properties
 
 		/// <summary>
 		/// Get/Set the lower limit of threads in the pool.
@@ -1522,9 +1526,9 @@ namespace Amib.Threading
             get { return (ISTPPerformanceCountersReader)_localPCs; }
         }
 
-        #endregion
+#endregion
 
-        #region IDisposable Members
+#region IDisposable Members
 
         public void Dispose()
         {
@@ -1559,9 +1563,9 @@ namespace Amib.Threading
                 throw new ObjectDisposedException(GetType().ToString(), "The SmartThreadPool has been shutdown");
             }
         }
-        #endregion
+#endregion
 
-        #region WorkItemsGroupBase Overrides
+#region WorkItemsGroupBase Overrides
 
         /// <summary>
         /// Get/Set the maximum number of work items that execute cocurrency on the thread pool
@@ -1702,9 +1706,9 @@ namespace Amib.Threading
 	        ValidateQueueIsWithinLimits();
         }
 
-        #endregion
+#endregion
 
-        #region Join, Choice, Pipe, etc.
+#region Join, Choice, Pipe, etc.
 
         /// <summary>
         /// Executes all actions in parallel.
@@ -1805,7 +1809,7 @@ namespace Amib.Threading
         {
             Pipe(pipeState, (IEnumerable<Action<T>>)actions);
         }
-        #endregion
+#endregion
 	}
-	#endregion
+#endregion
 }
